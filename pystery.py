@@ -4,11 +4,13 @@ import math
 from enum import Enum
 
 DIR_TRIANGLE_SIZE = 30
-INVENTORY_SIZE = 6
+INVENTORY_SIZE = 4
+INVENTORY_WIDTH_FRAC = 0.1 # what fraction of the screen width the inventory should take up
+INVENTORY_PADDING_FRAC = 0.05 # what fraction of the inventory width should be padding between items
 
 global screen
 
-def init(width=1280, height=720):
+def init(width=1408, height=720):
     global screen
 
     pygame.init()
@@ -71,6 +73,9 @@ class ImageEntity(Entity):
         adjusted_pos = (pos[0] - self.anchor[0]*scale, pos[1] - self.anchor[1]*scale)
         scaled_img = pygame.transform.scale(self.loaded_img, (int(self.loaded_img.get_width() * scale), int(self.loaded_img.get_height() * scale)))
         surface.blit(scaled_img, adjusted_pos)
+
+    def render_to_fit(self, target, rect):
+        blit_to_fit(self.loaded_img, target, rect)
 
     def hit_test(self, *, click_pos, pos, scale=1):
         img_click_pos = ((click_pos[0] - pos[0])/scale + self.anchor[0], (click_pos[1] - pos[1])/scale + self.anchor[1])
@@ -167,6 +172,35 @@ class Scene(object):
 
         print('scene click did not hit anything')
 
+    # returns new surface
+    def render(self, show_outlines):
+        render_surface = pygame.Surface(self.loaded_img.get_size())
+        render_surface.fill((0, 0, 0))
+
+        # draw the background image
+        render_surface.blit(self.loaded_img, (0, 0))
+
+        # draw the entity placements
+        for placement in self.placements:
+            if not placement.hidden:
+                placement.entity.render(surface=render_surface, pos=placement.pos, scale=placement.scale)
+
+                if show_outlines:
+                    placement.render_outline(render_surface)
+
+        # draw any region outlines
+        if show_outlines:
+            for region in self.regions:
+                region.render_outline(render_surface)
+
+        # draw any directional link arrows
+        for dir, target_scene in self.dir_links.items():
+            pos, angle = get_dir_triangle_pos_angle(render_surface.get_size(), dir)
+            draw_triangle(render_surface, (255, 255, 255), pos, DIR_TRIANGLE_SIZE, angle)
+            draw_triangle(render_surface, (0, 0, 0), pos, 0.6*DIR_TRIANGLE_SIZE, angle)
+
+        return render_surface
+
 class Transform(object):
     def __init__(self, scale, x_offset, y_offset):
         self.scale = scale
@@ -179,11 +213,13 @@ class Transform(object):
     def apply_inverse(self, pos):
         return ((pos[0] - self.x_offset) / self.scale, (pos[1] - self.y_offset) / self.scale)
 
-def blit_to_fit(surface, target):
-    # determine factor by which we need to scale surface to fit target
-    scale = min(target.get_width() / surface.get_width(), target.get_height() / surface.get_height())
-    x_offset = (target.get_width() - surface.get_width() * scale) / 2
-    y_offset = (target.get_height() - surface.get_height() * scale) / 2
+def blit_to_fit(surface, target, rect=None):
+    if rect is None:
+        rect = target.get_rect()
+
+    scale = min(rect.width / surface.get_width(), rect.height / surface.get_height())
+    x_offset = rect.left + (rect.width - surface.get_width() * scale) / 2
+    y_offset = rect.top + (rect.height - surface.get_height() * scale) / 2
 
     # now resize the surface to the size of the display
     scaled_surface = pygame.transform.scale_by(surface, scale)
@@ -256,6 +292,29 @@ class Game(object):
     def set_current_scene(self, scene):
         self.current_scene = scene
 
+    def render_inventory(self, width, height):
+        inventory_surface = pygame.Surface((width, height))
+        inventory_surface.fill((0, 0, 0))
+
+        total_squares_height = width*INVENTORY_SIZE + INVENTORY_PADDING_FRAC*(INVENTORY_SIZE - 1)
+        assert total_squares_height <= height
+        inventory_y_offset = (height - total_squares_height) / 2
+
+        # draw the inventory items
+        y = inventory_y_offset
+        for i in range(INVENTORY_SIZE):
+            pygame.draw.rect(inventory_surface, (255, 255, 255), (0, y, width, width))
+
+            INNER_PADDING_FRAC = 0.1
+            inner_rect = pygame.Rect(width*INNER_PADDING_FRAC, y + width*INNER_PADDING_FRAC, width*(1 - 2*INNER_PADDING_FRAC), width*(1 - 2*INNER_PADDING_FRAC))
+
+            if self.inventory[i] is not None:
+                self.inventory[i].render_to_fit(inventory_surface, inner_rect)
+
+            y += width + INVENTORY_PADDING_FRAC*width
+
+        return inventory_surface
+
     def run(self):
         running = True
         clock = pygame.time.Clock()
@@ -263,7 +322,7 @@ class Game(object):
         t_prev = t0
 
         show_fps = False
-        font = pygame.font.Font(None, 16)
+        font = pygame.font.Font(None, 32)
 
         show_outlines = False
 
@@ -305,43 +364,29 @@ class Game(object):
 
                             self.current_scene.handle_click(xformed_click_pos, self)
 
-            # draw the current scene
-            render_surface = pygame.Surface(self.current_scene.loaded_img.get_size())
-            render_surface.fill((0, 0, 0))
-
-            # draw the background image
-            render_surface.blit(self.current_scene.loaded_img, (0, 0))
-
-            # draw the entity placements
-            for placement in self.current_scene.placements:
-                if not placement.hidden:
-                    placement.entity.render(surface=render_surface, pos=placement.pos, scale=placement.scale)
-
-                    if show_outlines:
-                        placement.render_outline(render_surface)
-
-            # draw any region outlines
-            if show_outlines:
-                for region in self.current_scene.regions:
-                    region.render_outline(render_surface)
-
-            # draw any directional link arrows
-            for dir, target_scene in self.current_scene.dir_links.items():
-                pos, angle = get_dir_triangle_pos_angle(render_surface.get_size(), dir)
-                draw_triangle(render_surface, (255, 255, 255), pos, DIR_TRIANGLE_SIZE, angle)
-                draw_triangle(render_surface, (0, 0, 0), pos, 0.6*DIR_TRIANGLE_SIZE, angle)
+            # render the current scene
+            scene_render_surface = self.current_scene.render(show_outlines)
 
             # render FPS
             if show_fps:
                 rounded_fps = str(round(clock.get_fps(), 2))
                 fps_text = font.render(rounded_fps, True, (255, 255, 255))
-                render_surface.blit(fps_text, (render_surface.get_width() - fps_text.get_width(), 0))
+                scene_render_surface.blit(fps_text, (scene_render_surface.get_width() - fps_text.get_width(), 0))
 
             # clear the screen to black
             screen.fill((0, 0, 0))
 
             # blit the render surface to the screen
-            last_render_xform = blit_to_fit(render_surface, screen)
+            scene_target_rect = pygame.Rect(0, 0, screen.get_width() * (1 - INVENTORY_WIDTH_FRAC), screen.get_height())
+            last_render_xform = blit_to_fit(scene_render_surface, screen, scene_target_rect)
+
+            scene_right_x = scene_render_surface.get_width()*last_render_xform.scale + last_render_xform.x_offset
+            scene_top_y = last_render_xform.y_offset
+            scene_height = scene_render_surface.get_height()*last_render_xform.scale
+
+            inventory_rect = pygame.Rect(scene_right_x, scene_top_y, screen.get_width()*INVENTORY_WIDTH_FRAC, scene_height)
+            inventory_surface = self.render_inventory(inventory_rect.width, inventory_rect.height)
+            screen.blit(inventory_surface, (inventory_rect.left, inventory_rect.top))
 
             # show updated screen
             pygame.display.flip()
