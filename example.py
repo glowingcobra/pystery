@@ -13,11 +13,27 @@ class ExampleGame(Game):
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
         hallway_scene = Scene(img='assets/bg/hallway.jpg')
 
+        muppet_entity = Entity(img='assets/entity/muppet.png', pos=(640, 345))
+        muppet_entity.hide()
+        computer_scene.add_entity(muppet_entity)
+
+        muppet_small_entity = Entity(img='assets/entity/muppet_small.png', pos=(605, 360))
+        muppet_small_entity.hide()
+        office_scene.add_entity(muppet_small_entity)
+
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
         office_computer_region.link_to_scene(computer_scene)
         office_scene.add_region(office_computer_region)
 
         computer_scene.add_dir_link(Dir.DOWN, office_scene)
+
+        def show_muppets():
+            muppet_entity.show()
+            muppet_small_entity.show()
+
+        computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
+        computer_scene_screen_region.on_click(show_muppets)
+        computer_scene.add_region(computer_scene_screen_region)
 
         office_scene.add_dir_link(Dir.LEFT, bookshelf_scene)
         bookshelf_scene.add_dir_link(Dir.RIGHT, office_scene)

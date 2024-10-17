@@ -19,9 +19,13 @@ def quit():
 class Region(object):
     def __init__(self):
         self.linked_scene = None
+        self.click_fn = None
 
     def link_to_scene(self, scene):
         self.linked_scene = scene
+
+    def on_click(self, fn):
+        self.click_fn = fn
 
 class RectRegion(Region):
     def __init__(self, *, left, top, width, height):
@@ -37,6 +41,8 @@ class RectRegion(Region):
 
 class Entity(object):
     def __init__(self, *, pos, img=None):
+        self.hidden = False
+
         self.pos = pos
 
         self.loaded_img = None
@@ -44,6 +50,15 @@ class Entity(object):
         if img:
             self.loaded_img = pygame.image.load(img).convert_alpha()
             self.anchor = (self.loaded_img.get_width() / 2, self.loaded_img.get_height() / 2)
+
+    def show(self):
+        self.hidden = False
+
+    def hide(self):
+        self.hidden = True
+
+    def set_hidden(self, hidden):
+        self.hidden = hidden
 
 class Dir(Enum):
     UP = 0
@@ -178,6 +193,8 @@ class Game(object):
                             # check if the click was in any region
                             for region in self.current_scene.regions:
                                 if region.contains(xformed_click_pos):
+                                    if region.click_fn:
+                                        region.click_fn()
                                     if region.linked_scene:
                                         self.current_scene = region.linked_scene
                                         break
@@ -192,7 +209,7 @@ class Game(object):
 
             # draw the entity instances
             for ent in self.current_scene.entities:
-                if ent.loaded_img:
+                if ent.loaded_img and not ent.hidden:
                     assert ent.anchor, 'Entity must have an anchor point set'
                     adjusted_pos = (ent.pos[0] - ent.anchor[0], ent.pos[1] - ent.anchor[1])
                     render_surface.blit(ent.loaded_img, adjusted_pos)
