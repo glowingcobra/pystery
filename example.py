@@ -1,4 +1,4 @@
-from pystery import init, quit, Game, Scene, Entity, RectRegion, Dir
+from pystery import init, quit, load_image, Game, Scene, ImageEntity, RectRegion, Dir
 
 class ExampleGame(Game):
     def __init__(self):
@@ -9,19 +9,25 @@ class ExampleGame(Game):
         ################################
 
         typing_sound = self.load_sound('assets/audio/typing.mp3')
+        smash_sound = self.load_sound('assets/audio/smash.mp3')
 
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
         hallway_scene = Scene(img='assets/bg/hallway.jpg')
+        hallway_with_broken_door = load_image('assets/bg/hallway_broken.jpg')
+        outside_scene = Scene(img='assets/bg/outside.jpg')
 
-        muppet_entity = Entity(img='assets/entity/muppet.png', pos=(640, 345))
-        muppet_entity.hide()
-        computer_scene.add_entity(muppet_entity)
+        muppet_entity = ImageEntity(img='assets/entity/muppet.png')
+        muppet_in_computer_scene = computer_scene.place_entity(muppet_entity, pos=(640, 345))
+        muppet_in_computer_scene.hide()
 
-        muppet_small_entity = Entity(img='assets/entity/muppet_small.png', pos=(605, 360))
-        muppet_small_entity.hide()
-        office_scene.add_entity(muppet_small_entity)
+        muppet_in_office_scene = office_scene.place_entity(muppet_entity, pos=(605, 360), scale=0.45)
+        muppet_in_office_scene.hide()
+
+        sledgehammer_entity = ImageEntity(img='assets/entity/sledgehammer.png')
+        sledgehammer_on_bookshelf = bookshelf_scene.place_entity(sledgehammer_entity, pos=(350, 550), scale=1)
+        self.add_to_inventory_upon_click(sledgehammer_on_bookshelf)
 
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
         office_computer_region.link_to_scene(computer_scene)
@@ -29,13 +35,14 @@ class ExampleGame(Game):
 
         computer_scene.add_dir_link(Dir.DOWN, office_scene)
 
-        def show_muppets():
-            muppet_entity.show()
-            muppet_small_entity.show()
-            typing_sound.play()
+        def clicked_computer():
+            if muppet_in_computer_scene.is_hidden():
+                muppet_in_computer_scene.show()
+                muppet_in_office_scene.show()
+                typing_sound.play()
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
-        computer_scene_screen_region.on_click(show_muppets)
+        computer_scene_screen_region.on_click(clicked_computer)
         computer_scene.add_region(computer_scene_screen_region)
 
         office_scene.add_dir_link(Dir.LEFT, bookshelf_scene)
@@ -46,6 +53,17 @@ class ExampleGame(Game):
 
         bookshelf_scene.add_dir_link(Dir.LEFT, hallway_scene)
         hallway_scene.add_dir_link(Dir.RIGHT, bookshelf_scene)
+
+        def click_hallway_door():
+            if self.is_in_inventory(sledgehammer_entity):
+                hallway_scene.add_dir_link(Dir.UP, outside_scene)
+                hallway_scene.set_img(hallway_with_broken_door)
+                hallway_scene.remove_region(hallway_scene_door_region)
+                smash_sound.play()
+
+        hallway_scene_door_region = RectRegion(left=527, top=96, width=220, height=470)
+        hallway_scene_door_region.on_click(click_hallway_door)
+        hallway_scene.add_region(hallway_scene_door_region)
 
         self.set_start_scene(office_scene)
 
