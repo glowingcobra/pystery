@@ -13,6 +13,9 @@ def init(width=1280, height=720):
     pygame.init()
     screen = pygame.display.set_mode((width, height))
 
+    pygame.mixer.init()
+
+
 def quit():
     pygame.quit()
 
@@ -138,6 +141,12 @@ class Game(object):
 
     def set_start_scene(self, scene):
         self.start_scene = scene
+
+    def load_sound(self, fn):
+        return pygame.mixer.Sound(fn)
+
+    def play_sound(self, sound):
+        sound.play()
 
     def run(self):
         running = True

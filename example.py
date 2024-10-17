@@ -8,6 +8,8 @@ class ExampleGame(Game):
         # SET UP YOUR GAME STARTING HERE
         ################################
 
+        typing_sound = self.load_sound('assets/audio/typing.mp3')
+
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
@@ -30,6 +32,7 @@ class ExampleGame(Game):
         def show_muppets():
             muppet_entity.show()
             muppet_small_entity.show()
+            typing_sound.play()
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
         computer_scene_screen_region.on_click(show_muppets)
