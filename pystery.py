@@ -42,6 +42,9 @@ class RectRegion(Region):
     def contains(self, pos):
         return (self.left <= pos[0] <= (self.left + self.width)) and (self.top <= pos[1] <= (self.top + self.height))
 
+    def render_outline(self, surface):
+        pygame.draw.rect(surface, (0, 255, 0), (self.left, self.top, self.width, self.height), 2)
+
 class Entity(object):
     def __init__(self, *, pos, img=None):
         self.hidden = False
@@ -157,6 +160,8 @@ class Game(object):
         show_fps = False
         font = pygame.font.Font(None, 16)
 
+        show_outlines = False
+
         last_render_surface_dims = None
         last_render_xform = None
 
@@ -183,6 +188,8 @@ class Game(object):
                         show_fps = not show_fps
                     elif event.key == pygame.K_r:
                         return True
+                    elif event.key == pygame.K_o:
+                        show_outlines = not show_outlines
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if last_render_xform and last_render_surface_dims:
                         if event.button == 1:
@@ -222,6 +229,11 @@ class Game(object):
                     assert ent.anchor, 'Entity must have an anchor point set'
                     adjusted_pos = (ent.pos[0] - ent.anchor[0], ent.pos[1] - ent.anchor[1])
                     render_surface.blit(ent.loaded_img, adjusted_pos)
+
+            # draw any region outlines
+            if show_outlines:
+                for region in self.current_scene.regions:
+                    region.render_outline(render_surface)
 
             # draw any directional link arrows
             for dir, target_scene in self.current_scene.dir_links.items():
