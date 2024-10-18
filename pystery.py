@@ -18,7 +18,6 @@ def init(width=1408, height=720):
 
     pygame.mixer.init()
 
-
 def quit():
     pygame.quit()
 
@@ -145,6 +144,9 @@ class Scene(object):
         assert dir in Dir, 'Invalid direction'
         self.dir_links[dir] = scene
 
+    def has_dir_link(self, dir):
+        return dir in self.dir_links
+
     def handle_click(self, click_pos, game):
         # check if the click was on any directional link triangle
         for dir, target_scene in self.dir_links.items():
@@ -164,13 +166,13 @@ class Scene(object):
 
         # check if the click was on any entity placement
         for placement in self.placements:
-            print('checking placement', placement)
             if not placement.hidden and placement.entity.hit_test(click_pos=click_pos, pos=placement.pos, scale=placement.scale):
                 if placement.on_click:
                     placement.on_click()
                 return
 
         print('scene click did not hit anything')
+        return
 
     # returns new surface
     def render(self, show_outlines):
@@ -255,6 +257,8 @@ class Game(object):
         self.start_scene = None
         self.current_scene = None
         self.inventory = [None] * INVENTORY_SIZE
+        self.selected_inventory_idx = None
+        self.inventory_item_rects = None
 
     def set_start_scene(self, scene):
         self.start_scene = scene
@@ -283,6 +287,12 @@ class Game(object):
     def is_in_inventory(self, entity):
         return entity in self.inventory
 
+    def get_selected_inventory_entity(self):
+        if self.selected_inventory_idx is not None:
+            return self.inventory[self.selected_inventory_idx]
+        else:
+            return None
+
     def add_to_inventory_upon_click(self, placement):
         def fn():
             self.add_to_inventory(placement.entity)
@@ -292,28 +302,34 @@ class Game(object):
     def set_current_scene(self, scene):
         self.current_scene = scene
 
-    def render_inventory(self, width, height):
-        inventory_surface = pygame.Surface((width, height))
-        inventory_surface.fill((0, 0, 0))
+    def calculate_inventory_item_rects(self, scene_rect):
+        inventory_rect = pygame.Rect(scene_rect.right, scene_rect.top, screen.get_width()*INVENTORY_WIDTH_FRAC, scene_rect.height)
+        total_squares_height = inventory_rect.width*INVENTORY_SIZE + INVENTORY_PADDING_FRAC*(INVENTORY_SIZE - 1)
+        assert total_squares_height <= inventory_rect.height
+        inventory_y_offset = (inventory_rect.height - total_squares_height) / 2
 
-        total_squares_height = width*INVENTORY_SIZE + INVENTORY_PADDING_FRAC*(INVENTORY_SIZE - 1)
-        assert total_squares_height <= height
-        inventory_y_offset = (height - total_squares_height) / 2
-
-        # draw the inventory items
+        self.inventory_item_rects = []
         y = inventory_y_offset
         for i in range(INVENTORY_SIZE):
-            pygame.draw.rect(inventory_surface, (255, 255, 255), (0, y, width, width))
+            self.inventory_item_rects.append(pygame.Rect(inventory_rect.left, y, inventory_rect.width, inventory_rect.width))
+            y += inventory_rect.width + INVENTORY_PADDING_FRAC*inventory_rect.width
+
+    def render_inventory(self):
+        assert len(self.inventory) == INVENTORY_SIZE
+        assert len(self.inventory_item_rects) == INVENTORY_SIZE
+
+        for i in range(INVENTORY_SIZE):
+            irect = self.inventory_item_rects[i]
+            pygame.draw.rect(screen, (128, 128, 128), irect)
+
+            if i == self.selected_inventory_idx:
+                pygame.draw.rect(screen, (255, 255, 255), irect, 5)
 
             INNER_PADDING_FRAC = 0.1
-            inner_rect = pygame.Rect(width*INNER_PADDING_FRAC, y + width*INNER_PADDING_FRAC, width*(1 - 2*INNER_PADDING_FRAC), width*(1 - 2*INNER_PADDING_FRAC))
+            inner_rect = pygame.Rect(irect.left + irect.width*INNER_PADDING_FRAC, irect.top + irect.height*INNER_PADDING_FRAC, irect.width*(1 - 2*INNER_PADDING_FRAC), irect.height*(1 - 2*INNER_PADDING_FRAC))
 
             if self.inventory[i] is not None:
-                self.inventory[i].render_to_fit(inventory_surface, inner_rect)
-
-            y += width + INVENTORY_PADDING_FRAC*width
-
-        return inventory_surface
+                self.inventory[i].render_to_fit(screen, inner_rect)
 
     def run(self):
         running = True
@@ -364,6 +380,18 @@ class Game(object):
 
                             self.current_scene.handle_click(xformed_click_pos, self)
 
+                            # check if the click was in the inventory
+                            assert (self.inventory_item_rects is not None) and (len(self.inventory_item_rects) == INVENTORY_SIZE)
+                            for i in range(INVENTORY_SIZE):
+                                if self.inventory_item_rects[i].collidepoint(mouse_pos):
+                                    if self.selected_inventory_idx == i:
+                                        self.selected_inventory_idx = None
+                                    else:
+                                        self.selected_inventory_idx = i
+                                    break
+                            else:
+                                self.selected_inventory_idx = None
+
             # render the current scene
             scene_render_surface = self.current_scene.render(show_outlines)
 
@@ -377,16 +405,14 @@ class Game(object):
             screen.fill((0, 0, 0))
 
             # blit the render surface to the screen
-            scene_target_rect = pygame.Rect(0, 0, screen.get_width() * (1 - INVENTORY_WIDTH_FRAC), screen.get_height())
-            last_render_xform = blit_to_fit(scene_render_surface, screen, scene_target_rect)
+            scene_container_rect = pygame.Rect(0, 0, screen.get_width() * (1 - INVENTORY_WIDTH_FRAC), screen.get_height())
+            last_render_xform = blit_to_fit(scene_render_surface, screen, scene_container_rect)
 
-            scene_right_x = scene_render_surface.get_width()*last_render_xform.scale + last_render_xform.x_offset
-            scene_top_y = last_render_xform.y_offset
-            scene_height = scene_render_surface.get_height()*last_render_xform.scale
+            scene_actual_rect = pygame.Rect(last_render_xform.x_offset, last_render_xform.y_offset, scene_render_surface.get_width()*last_render_xform.scale, scene_render_surface.get_height()*last_render_xform.scale)
 
-            inventory_rect = pygame.Rect(scene_right_x, scene_top_y, screen.get_width()*INVENTORY_WIDTH_FRAC, scene_height)
-            inventory_surface = self.render_inventory(inventory_rect.width, inventory_rect.height)
-            screen.blit(inventory_surface, (inventory_rect.left, inventory_rect.top))
+            # render the inventory
+            self.calculate_inventory_item_rects(scene_actual_rect)
+            self.render_inventory()
 
             # show updated screen
             pygame.display.flip()

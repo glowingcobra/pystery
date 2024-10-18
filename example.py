@@ -10,6 +10,7 @@ class ExampleGame(Game):
 
         typing_sound = self.load_sound('assets/audio/typing.mp3')
         smash_sound = self.load_sound('assets/audio/smash.mp3')
+        locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
 
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
@@ -55,11 +56,14 @@ class ExampleGame(Game):
         hallway_scene.add_dir_link(Dir.RIGHT, bookshelf_scene)
 
         def click_hallway_door():
-            if self.is_in_inventory(sledgehammer_entity):
-                hallway_scene.add_dir_link(Dir.UP, outside_scene)
-                hallway_scene.set_img(hallway_with_broken_door)
-                hallway_scene.remove_region(hallway_scene_door_region)
-                smash_sound.play()
+            if not hallway_scene.has_dir_link(Dir.UP):
+                if self.get_selected_inventory_entity() == sledgehammer_entity:
+                    hallway_scene.add_dir_link(Dir.UP, outside_scene)
+                    hallway_scene.set_img(hallway_with_broken_door)
+                    hallway_scene.remove_region(hallway_scene_door_region)
+                    smash_sound.play()
+                else:
+                    locked_door_sound.play()
 
         hallway_scene_door_region = RectRegion(left=527, top=96, width=220, height=470)
         hallway_scene_door_region.on_click(click_hallway_door)
