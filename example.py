@@ -30,9 +30,16 @@ class ExampleGame(Game):
         sledgehammer_on_bookshelf = bookshelf_scene.place_entity(sledgehammer_entity, pos=(350, 550), scale=1)
         self.add_to_inventory_upon_click(sledgehammer_on_bookshelf)
 
+        apple_entity = ImageEntity(img='assets/entity/apple.png')
+
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
         office_computer_region.link_to_scene(computer_scene)
         office_scene.add_region(office_computer_region)
+
+        office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
+        self.add_to_inventory_upon_click(office_apple_1)
+        office_apple_2 = office_scene.place_entity(apple_entity, pos=(1050, 480))
+        self.add_to_inventory_upon_click(office_apple_2)
 
         computer_scene.add_dir_link(Dir.DOWN, office_scene)
 
