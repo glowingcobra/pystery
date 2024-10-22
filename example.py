@@ -50,15 +50,12 @@ class ExampleGame(Game):
                 muppet_in_office_scene.show()
                 computer_scene.remove_region(computer_scene_screen_region)
                 typing_sound.play()
-
-        def click_muppet():
-            if not muppet_entity.size >= 3:
-                if self.get_selected_inventory_entity() == apple_entity:
-                    muppet_entity.size += 1
-                    muppet_in_office_scene.set_scale(muppet_entity.size * 0.45)
-                    muppet_in_computer_scene.set_scale(muppet_entity.size)
-                    muppet_entity.set_scale(muppet_entity.size)
-                    self.remove_from_inventory(apple_entity)
+            elif self.get_selected_inventory_entity() == apple_entity:
+                muppet_entity.size += 1
+                muppet_in_office_scene.set_scale(muppet_entity.size * 0.45)
+                muppet_in_computer_scene.set_scale(muppet_entity.size)
+                muppet_entity.set_scale(muppet_entity.size)
+                self.remove_from_inventory(apple_entity)
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
         computer_scene_screen_region.on_click(clicked_computer)
