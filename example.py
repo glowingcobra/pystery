@@ -21,6 +21,7 @@ class ExampleGame(Game):
 
         muppet_entity = ImageEntity(img='assets/entity/muppet.png')
         muppet_in_computer_scene = computer_scene.place_entity(muppet_entity, pos=(640, 345))
+        muppet_entity.size = 1
         muppet_in_computer_scene.hide()
 
         muppet_in_office_scene = office_scene.place_entity(muppet_entity, pos=(605, 360), scale=0.45)
@@ -47,7 +48,17 @@ class ExampleGame(Game):
             if muppet_in_computer_scene.is_hidden():
                 muppet_in_computer_scene.show()
                 muppet_in_office_scene.show()
+                computer_scene.remove_region(computer_scene_screen_region)
                 typing_sound.play()
+
+        def click_muppet():
+            if not muppet_entity.size >= 3:
+                if self.get_selected_inventory_entity() == apple_entity:
+                    muppet_entity.size += 1
+                    muppet_in_office_scene.set_scale(muppet_entity.size * 0.45)
+                    muppet_in_computer_scene.set_scale(muppet_entity.size)
+                    muppet_entity.set_scale(muppet_entity.size)
+                    self.remove_from_inventory(apple_entity)
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
         computer_scene_screen_region.on_click(clicked_computer)
@@ -61,6 +72,7 @@ class ExampleGame(Game):
 
         bookshelf_scene.add_dir_link(Dir.LEFT, hallway_scene)
         hallway_scene.add_dir_link(Dir.RIGHT, bookshelf_scene)
+        outside_scene.add_dir_link(Dir.DOWN, hallway_scene)
 
         def click_hallway_door():
             if not hallway_scene.has_dir_link(Dir.UP):
