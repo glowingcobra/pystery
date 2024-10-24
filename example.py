@@ -12,6 +12,7 @@ class ExampleGame(Game):
         smash_sound = self.load_sound('assets/audio/smash.mp3')
         locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
 
+        text_scene1 = Scene(img='assets/bg/text1.jpg')
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
@@ -80,7 +81,7 @@ class ExampleGame(Game):
         hallway_scene.add_region(hallway_scene_door_region)
 
         self.set_start_scene(office_scene)
-
+        self.set_start_scene(text_scene1)
 init()
 while True:
     # run the game until quit or restart
