@@ -1,3 +1,4 @@
+import pygame
 from pystery import init, quit, load_image, Game, Scene, ImageEntity, RectRegion, Dir
 
 class ExampleGame(Game):
@@ -12,7 +13,10 @@ class ExampleGame(Game):
         smash_sound = self.load_sound('assets/audio/smash.mp3')
         locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
 
-        text_scene1 = Scene(img='assets/bg/text1.jpg')
+
+
+        text_scene1 = Scene(img='assets/bg/Text1.png')
+        text_scene2 = Scene(img='assets/bg/Text2.png')
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
@@ -37,6 +41,13 @@ class ExampleGame(Game):
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
         office_computer_region.link_to_scene(computer_scene)
         office_scene.add_region(office_computer_region)
+        
+        text_click_region1 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region1.link_to_scene(text_scene2)
+        text_scene1.add_region(text_click_region1)
+        text_click_region2 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region2.link_to_scene(office_scene)
+        text_scene2.add_region(text_click_region2)
 
         office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
         self.add_to_inventory_upon_click(office_apple_1)
