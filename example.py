@@ -9,6 +9,8 @@ class ExampleGame(Game):
         # SET UP YOUR GAME STARTING HERE
         ################################
 
+
+        
         typing_sound = self.load_sound('assets/audio/typing.mp3')
         smash_sound = self.load_sound('assets/audio/smash.mp3')
         locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
@@ -16,17 +18,17 @@ class ExampleGame(Game):
         text_scene1 = Scene(img='assets/bg/Text1.png')
         text_scene2 = Scene(img='assets/bg/Text2.png')
         living_room_scene = Scene(img='assets/bg/living_room.jpg')
-        computer_scene = Scene(img='assets/bg/computer_scene.jpeg')
+        computer_scene = Scene(img='assets/bg/computer_scene.jpg')
 
         office_scene = Scene(img='assets/bg/office.jpg')
-        computer_scene = Scene(img='assets/bg/computer.jpg')
+        computer_scene2 = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
         hallway_scene = Scene(img='assets/bg/hallway.jpg')
         hallway_with_broken_door = load_image('assets/bg/hallway_broken.jpg')
         outside_scene = Scene(img='assets/bg/outside.jpg')
 
         muppet_entity = ImageEntity(img='assets/entity/muppet.png')
-        muppet_in_computer_scene = computer_scene.place_entity(muppet_entity, pos=(640, 345))
+        muppet_in_computer_scene = computer_scene2.place_entity(muppet_entity, pos=(640, 345))
         muppet_entity.size = 1
         muppet_in_computer_scene.hide()
 
@@ -40,7 +42,7 @@ class ExampleGame(Game):
         apple_entity = ImageEntity(img='assets/entity/apple.png')
 
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
-        office_computer_region.link_to_scene(computer_scene)
+        office_computer_region.link_to_scene(computer_scene2)
         office_scene.add_region(office_computer_region)
         
         text_click_region1 = RectRegion(left=0, top=0, width=1280, height=720)
@@ -49,24 +51,28 @@ class ExampleGame(Game):
         text_click_region2 = RectRegion(left=0, top=0, width=1280, height=720)
         text_click_region2.link_to_scene(living_room_scene)
         text_scene2.add_region(text_click_region2)
+        living_room_click_region1 = RectRegion(left=680, top=370, width=120, height=70)
+        living_room_click_region1.link_to_scene(computer_scene)
+        living_room_scene.add_region(living_room_click_region1)
+        computer_scene.add_dir_link(Dir.UP, living_room_scene)
 
         office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
         self.add_to_inventory_upon_click(office_apple_1)
         office_apple_2 = office_scene.place_entity(apple_entity, pos=(1050, 480))
         self.add_to_inventory_upon_click(office_apple_2)
 
-        computer_scene.add_dir_link(Dir.DOWN, office_scene)
+        computer_scene2.add_dir_link(Dir.DOWN, office_scene)
 
         def clicked_computer():
             if muppet_in_computer_scene.is_hidden():
                 muppet_in_computer_scene.show()
                 muppet_in_office_scene.show()
-                computer_scene.remove_region(computer_scene_screen_region)
+                computer_scene2.remove_region(computer_scene_screen_region)
                 typing_sound.play()
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
         computer_scene_screen_region.on_click(clicked_computer)
-        computer_scene.add_region(computer_scene_screen_region)
+        computer_scene2.add_region(computer_scene_screen_region)
 
         office_scene.add_dir_link(Dir.LEFT, bookshelf_scene)
         bookshelf_scene.add_dir_link(Dir.RIGHT, office_scene)
