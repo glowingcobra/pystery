@@ -13,10 +13,11 @@ class ExampleGame(Game):
         smash_sound = self.load_sound('assets/audio/smash.mp3')
         locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
 
-
-
         text_scene1 = Scene(img='assets/bg/Text1.png')
         text_scene2 = Scene(img='assets/bg/Text2.png')
+        living_room_scene = Scene(img='assets/bg/living_room.jpg')
+        computer_scene = Scene(img='assets/bg/computer_scene.jpeg')
+
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
@@ -46,7 +47,7 @@ class ExampleGame(Game):
         text_click_region1.link_to_scene(text_scene2)
         text_scene1.add_region(text_click_region1)
         text_click_region2 = RectRegion(left=0, top=0, width=1280, height=720)
-        text_click_region2.link_to_scene(office_scene)
+        text_click_region2.link_to_scene(living_room_scene)
         text_scene2.add_region(text_click_region2)
 
         office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
