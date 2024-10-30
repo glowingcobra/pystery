@@ -8,8 +8,6 @@ class ExampleGame(Game):
         ################################
         # SET UP YOUR GAME STARTING HERE
         ################################
-
-
         
         typing_sound = self.load_sound('assets/audio/typing.mp3')
         smash_sound = self.load_sound('assets/audio/smash.mp3')
@@ -17,11 +15,17 @@ class ExampleGame(Game):
 
         text_scene1 = Scene(img='assets/bg/Text1.png')
         text_scene2 = Scene(img='assets/bg/Text2.png')
+        text_scene3 = Scene(img='assets/bg/Text3.png')
+        text_scene4 = Scene(img='assets/bg/Text4.png')
+        text_scene5 = Scene(img='assets/bg/Text5.png')
+        text_scene6 = Scene(img='assets/bg/Text6.png')
+        text_scene7 = Scene(img='assets/bg/Text7.png')
         living_room_scene = Scene(img='assets/bg/living_room.jpg')
-        computer_scene = Scene(img='assets/bg/computer_scene.jpg')
+        computer_scene1 = Scene(img='assets/bg/computer_scene1.jpg')
+        computer_scene2 = Scene(img='assets/bg/computer_scene2.jpg')
 
         office_scene = Scene(img='assets/bg/office.jpg')
-        computer_scene2 = Scene(img='assets/bg/computer.jpg')
+        computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
         hallway_scene = Scene(img='assets/bg/hallway.jpg')
         hallway_with_broken_door = load_image('assets/bg/hallway_broken.jpg')
@@ -41,6 +45,23 @@ class ExampleGame(Game):
 
         apple_entity = ImageEntity(img='assets/entity/apple.png')
 
+        
+
+        def clicked_computer():
+            if muppet_in_computer_scene.is_hidden():
+                muppet_in_computer_scene.show()
+                muppet_in_office_scene.show()
+                computer_scene.remove_region(computer_scene_screen_region)
+                typing_sound.play()
+
+        def click_file():
+            code_found = True
+            typing_sound.play()
+            living_room_scene.remove_region(living_room_click_region1)
+            living_room_click_region1.link_to_scene(computer_scene2)
+            living_room_scene.add_region(living_room_click_region1)
+            computer_scene2.add_dir_link(Dir.UP, living_room_scene)
+
         office_computer_region = RectRegion(left=450, top=280, width=320, height=220)
         office_computer_region.link_to_scene(computer_scene2)
         office_scene.add_region(office_computer_region)
@@ -49,30 +70,43 @@ class ExampleGame(Game):
         text_click_region1.link_to_scene(text_scene2)
         text_scene1.add_region(text_click_region1)
         text_click_region2 = RectRegion(left=0, top=0, width=1280, height=720)
-        text_click_region2.link_to_scene(living_room_scene)
+        text_click_region2.link_to_scene(text_scene3)
         text_scene2.add_region(text_click_region2)
+        text_click_region3 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region3.link_to_scene(text_scene4)
+        text_scene3.add_region(text_click_region3)
+        text_click_region4 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region4.link_to_scene(text_scene5)
+        text_scene4.add_region(text_click_region4)
+        text_click_region5 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region5.link_to_scene(text_scene6)
+        text_scene5.add_region(text_click_region5)
+        text_click_region6 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region6.link_to_scene(text_scene7)
+        text_scene6.add_region(text_click_region6)
+        text_click_region7 = RectRegion(left=0, top=0, width=1280, height=720)
+        text_click_region7.link_to_scene(living_room_scene)
+        text_scene7.add_region(text_click_region7)
         living_room_click_region1 = RectRegion(left=680, top=370, width=120, height=70)
-        living_room_click_region1.link_to_scene(computer_scene)
+        living_room_click_region1.link_to_scene(computer_scene1)
         living_room_scene.add_region(living_room_click_region1)
-        computer_scene.add_dir_link(Dir.UP, living_room_scene)
+        computer_scene1.add_dir_link(Dir.UP, living_room_scene)
+        computer_scene1_click_region1 = RectRegion(left= 200, top=132, width=900, height=100)
+        computer_scene1_click_region1.link_to_scene(computer_scene2)
+        computer_scene1_click_region1.on_click(click_file)
+        computer_scene1.add_region(computer_scene1_click_region1)
+        computer_scene2.add_dir_link(Dir.UP, living_room_scene)
 
         office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
         self.add_to_inventory_upon_click(office_apple_1)
         office_apple_2 = office_scene.place_entity(apple_entity, pos=(1050, 480))
         self.add_to_inventory_upon_click(office_apple_2)
 
-        computer_scene2.add_dir_link(Dir.DOWN, office_scene)
-
-        def clicked_computer():
-            if muppet_in_computer_scene.is_hidden():
-                muppet_in_computer_scene.show()
-                muppet_in_office_scene.show()
-                computer_scene2.remove_region(computer_scene_screen_region)
-                typing_sound.play()
+        computer_scene.add_dir_link(Dir.DOWN, office_scene)
 
         computer_scene_screen_region = RectRegion(left=515, top=258, width=248, height=175)
         computer_scene_screen_region.on_click(clicked_computer)
-        computer_scene2.add_region(computer_scene_screen_region)
+        computer_scene.add_region(computer_scene_screen_region)
 
         office_scene.add_dir_link(Dir.LEFT, bookshelf_scene)
         bookshelf_scene.add_dir_link(Dir.RIGHT, office_scene)
