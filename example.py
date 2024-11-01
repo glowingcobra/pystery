@@ -20,6 +20,7 @@ class ExampleGame(Game):
         text_scene5 = Scene(img='assets/bg/Text5.png')
         text_scene6 = Scene(img='assets/bg/Text6.png')
         text_scene7 = Scene(img='assets/bg/Text7.png')
+        outside_scene = Scene(img='assets/bg/outside.png')
         living_room_scene = Scene(img='assets/bg/living_room.jpg')
         computer_scene1 = Scene(img='assets/bg/computer_scene1.jpg')
         computer_scene2 = Scene(img='assets/bg/computer_scene2.jpg')
@@ -32,7 +33,7 @@ class ExampleGame(Game):
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
         hallway_scene = Scene(img='assets/bg/hallway.jpg')
         hallway_with_broken_door = load_image('assets/bg/hallway_broken.jpg')
-        outside_scene = Scene(img='assets/bg/outside.jpg')
+        outside_scene2 = Scene(img='assets/bg/outside.jpg')
 
         muppet_entity = ImageEntity(img='assets/entity/muppet.png')
         muppet_in_computer_scene = computer_scene2.place_entity(muppet_entity, pos=(640, 345))
@@ -88,8 +89,11 @@ class ExampleGame(Game):
         text_click_region6.link_to_scene(text_scene7)
         text_scene6.add_region(text_click_region6)
         text_click_region7 = RectRegion(left=0, top=0, width=1280, height=720)
-        text_click_region7.link_to_scene(living_room_scene)
+        text_click_region7.link_to_scene(outside_scene)
         text_scene7.add_region(text_click_region7)
+        outside_scene_click_region1 = RectRegion(left=675, top=450, width=150, height=150)
+        outside_scene_click_region1.link_to_scene(living_room_scene)
+        outside_scene.add_region(outside_scene_click_region1)
         living_room_click_region1 = RectRegion(left=680, top=370, width=120, height=70)
         living_room_click_region1.link_to_scene(computer_scene1)
         living_room_scene.add_region(living_room_click_region1)
@@ -127,12 +131,12 @@ class ExampleGame(Game):
 
         bookshelf_scene.add_dir_link(Dir.LEFT, hallway_scene)
         hallway_scene.add_dir_link(Dir.RIGHT, bookshelf_scene)
-        outside_scene.add_dir_link(Dir.DOWN, hallway_scene)
+        outside_scene2.add_dir_link(Dir.DOWN, hallway_scene)
 
         def click_hallway_door():
             if not hallway_scene.has_dir_link(Dir.UP):
                 if self.get_selected_inventory_entity() == sledgehammer_entity:
-                    hallway_scene.add_dir_link(Dir.UP, outside_scene)
+                    hallway_scene.add_dir_link(Dir.UP, outside_scene2)
                     hallway_scene.set_img(hallway_with_broken_door)
                     hallway_scene.remove_region(hallway_scene_door_region)
                     smash_sound.play()
