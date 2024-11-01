@@ -29,7 +29,8 @@ class ExampleGame(Game):
         glass_scene = Scene(img='assets/bg/glass.jpeg')
         bedroom_scene = Scene(img='assets/bg/bedroom.jpg')
         attic_scene = Scene(img='assets/bg/attic.png')
-
+        accusation_scene = Scene(img='assets/bg/accusation.jpg')
+        
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
@@ -116,6 +117,8 @@ class ExampleGame(Game):
         bedroom_scene.add_dir_link(Dir.RIGHT, attic_scene)
         attic_scene.add_dir_link(Dir.LEFT, bedroom_scene)
         attic_scene.add_dir_link(Dir.RIGHT, text_scene8)
+        text_scene8.add_dir_link(Dir.LEFT, attic_scene)
+        text_scene8.add_dir_link(Dir.RIGHT, accusation_scene)
 
         office_apple_1 = office_scene.place_entity(apple_entity, pos=(1140, 620))
         self.add_to_inventory_upon_click(office_apple_1)
