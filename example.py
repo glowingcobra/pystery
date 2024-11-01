@@ -10,8 +10,6 @@ class ExampleGame(Game):
         ################################
         
         typing_sound = self.load_sound('assets/audio/typing.mp3')
-        smash_sound = self.load_sound('assets/audio/smash.mp3')
-        locked_door_sound = self.load_sound('assets/audio/locked_door.mp3')
 
         text_scene1 = Scene(img='assets/bg/Text1.png')
         text_scene2 = Scene(img='assets/bg/Text2.png')
@@ -80,7 +78,8 @@ class ExampleGame(Game):
         attic_scene.add_dir_link(Dir.RIGHT, text_scene7)
         text_scene7.add_dir_link(Dir.LEFT, attic_scene)
         text_scene7.add_dir_link(Dir.RIGHT, accusation_scene)
-        
+
+        self.set_start_scene(text_scene1)
 init()
 while True:
     # run the game until quit or restart
