@@ -29,8 +29,8 @@ class ExampleGame(Game):
         glass_scene = Scene(img='assets/bg/glass.jpeg')
         bedroom_scene = Scene(img='assets/bg/bedroom.jpg')
         attic_scene = Scene(img='assets/bg/attic.png')
-        accusation_scene = Scene(img='assets/bg/accusation.jpg')
-        
+        accusation_scene = Scene(img='assets/bg/living_room.jpg')
+
         office_scene = Scene(img='assets/bg/office.jpg')
         computer_scene = Scene(img='assets/bg/computer.jpg')
         bookshelf_scene = Scene(img='assets/bg/bookshelf.jpg')
