@@ -5,8 +5,8 @@ class ExampleGame(Game):
     def __init__(self):
         super().__init__()
 
-        ################################
-        # SET UP YOUR GAME STARTING HERE
+        ################################ 
+        #SET UP YOUR GAME STARTING HERE#
         ################################
         
         typing_sound = self.load_sound('assets/audio/typing.mp3')
@@ -28,6 +28,8 @@ class ExampleGame(Game):
         journal_scene1 = Scene(img='assets/bg/journal_scene1.jpeg')
         journal_scene2 = Scene(img='assets/bg/journal_scene2.jpeg')
         attic_scene = Scene(img='assets/bg/attic.png')
+        glove_scene = Scene(img='assets/bg/glove.jpg')
+        glove_blood_scene = Scene(img='assets/bg/glove_blood.jpg')
         accusation_scene = Scene(img='assets/bg/living_room.jpg')
 
         def click_file():
@@ -87,6 +89,14 @@ class ExampleGame(Game):
         journal_scene2.add_dir_link(Dir.LEFT, journal_scene1)
         attic_scene.add_dir_link(Dir.LEFT, bedroom_scene)
         attic_scene.add_dir_link(Dir.RIGHT, text_scene7)
+        attic_scene_click_region1 = RectRegion(left= 1080, top=550, width=60, height=100)
+        attic_scene_click_region1.link_to_scene(glove_scene)
+        attic_scene.add_region(attic_scene_click_region1)
+        glove_scene.add_dir_link(Dir.UP, attic_scene)
+        glove_scene_click_region1 = RectRegion(left=830, top=290, width=200, height=150)
+        glove_scene_click_region1.link_to_scene(glove_blood_scene)
+        glove_scene.add_region(glove_scene_click_region1)
+        glove_blood_scene.add_dir_link(Dir.UP, glove_scene)
         text_scene7.add_dir_link(Dir.LEFT, attic_scene)
         text_scene7.add_dir_link(Dir.RIGHT, accusation_scene)
 
