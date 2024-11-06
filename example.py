@@ -8,6 +8,11 @@ class ExampleGame(Game):
         ################################ 
         #SET UP YOUR GAME STARTING HERE#
         ################################
+
+        pygame.mixer.init() 
+
+        pygame.mixer.music.load('assets/audio/rain.mp3') 
+        pygame.mixer.music.play(-1)
         
         typing_sound = self.load_sound('assets/audio/typing.mp3')
 
@@ -36,7 +41,7 @@ class ExampleGame(Game):
         attic_scene = Scene(img='assets/bg/attic.png')
         glove_scene = Scene(img='assets/bg/glove.jpg')
         glove_blood_scene = Scene(img='assets/bg/glove_blood.jpg')
-        accusation_scene = Scene(img='assets/bg/living_room.jpg')
+        accusation_scene = Scene(img='assets/bg/accusation.png')
 
         def click_file():
             typing_sound.play()
@@ -116,7 +121,7 @@ class ExampleGame(Game):
         journal_scene2.add_dir_link(Dir.LEFT, journal_scene1)
         attic_scene.add_dir_link(Dir.LEFT, bedroom_scene)
         attic_scene.add_dir_link(Dir.RIGHT, text_scene11)
-        attic_scene_click_region1 = RectRegion(left= 1080, top=550, width=60, height=100)
+        attic_scene_click_region1 = RectRegion(left= 1120, top=570, width=60, height=100)
         attic_scene_click_region1.link_to_scene(glove_scene)
         attic_scene.add_region(attic_scene_click_region1)
         glove_scene.add_dir_link(Dir.UP, attic_scene)
@@ -132,6 +137,7 @@ init()
 while True:
     # run the game until quit or restart
     run_result = ExampleGame().run()
+
 
     # if run_result is False, the game should quit. otherwise, we loop and restart it
     if not run_result:
