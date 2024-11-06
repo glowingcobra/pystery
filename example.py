@@ -42,6 +42,8 @@ class ExampleGame(Game):
         glove_scene = Scene(img='assets/bg/glove.jpg')
         glove_blood_scene = Scene(img='assets/bg/glove_blood.jpg')
         accusation_scene = Scene(img='assets/bg/accusation.png')
+        win_scene = Scene(img='assets/bg/win.png')
+        lose_scene = Scene(img='assets/bg/lose.png')
 
         def click_file():
             typing_sound.play()
@@ -131,6 +133,22 @@ class ExampleGame(Game):
         glove_blood_scene.add_dir_link(Dir.UP, glove_scene)
         text_scene11.add_dir_link(Dir.LEFT, attic_scene)
         text_scene11.add_dir_link(Dir.RIGHT, accusation_scene)
+        accusation_scene_click_region1 = RectRegion(left= 740, top=220, width=190, height=450)
+        accusation_scene_click_region1.link_to_scene(win_scene)
+        accusation_scene.add_region(accusation_scene_click_region1)
+        accusation_scene_click_region2 = RectRegion(left= 200, top=200, width=200, height=500)
+        accusation_scene_click_region2.link_to_scene(lose_scene)
+        accusation_scene.add_region(accusation_scene_click_region2)
+        accusation_scene_click_region3 = RectRegion(left= 935, top=440, width=200, height=210)
+        accusation_scene_click_region3.link_to_scene(lose_scene)
+        accusation_scene.add_region(accusation_scene_click_region3)
+        accusation_scene_click_region4 = RectRegion(left= 600, top=220, width = 115, height=470)
+        accusation_scene_click_region4.link_to_scene(lose_scene)
+        accusation_scene.add_region(accusation_scene_click_region4)
+        accusation_scene_click_region5 = RectRegion(left= 410, top=200, width=150, height=470)
+        accusation_scene_click_region5.link_to_scene(lose_scene)
+        accusation_scene.add_region(accusation_scene_click_region5)
+
 
         self.set_start_scene(text_scene1)
 init()
