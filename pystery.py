@@ -5,7 +5,7 @@ from enum import Enum
 
 DIR_TRIANGLE_SIZE = 30
 INVENTORY_SIZE = 4
-INVENTORY_WIDTH_FRAC = 0.1 # what fraction of the screen width the inventory should take up
+INVENTORY_WIDTH_FRAC = 0 # what fraction of the screen width the inventory should take up
 INVENTORY_PADDING_FRAC = 0.05 # what fraction of the inventory width should be padding between items
 
 global screen
